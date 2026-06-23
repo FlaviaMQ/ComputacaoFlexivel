@@ -6,9 +6,9 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 # 1. Ler a aba da planilha
-dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino1")
+dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino2")
 
-dados = dados.dropna(subset=["Temperatura", "UR", "Classe"])
+dados = dados.dropna(subset=["Mes", "Hora", "Classe"])
 
 # remove linhas totalmente vazias
 dados = dados.dropna(how="all")
@@ -19,9 +19,23 @@ dados = dados.dropna(subset=["Classe"])
 # remove linhas com classe inválida
 dados = dados[dados["Classe"].isin([0, 1, 2])]
 
+#Análise exploratória: tabela cruzada de Mes e Hora com Classe
+
+print("\nClasse por mês:")
+print(pd.crosstab(dados["Mes"], dados["Classe"]))
+
+print("\nClasse por hora:")
+print(pd.crosstab(dados["Hora"], dados["Classe"]))
+
+print("\nClasse por mês e horário:")
+print(pd.crosstab([dados["Mes"], dados["Hora"]], dados["Classe"]))
+
+print("\nPercentual de classes por mês:")
+print((pd.crosstab(dados["Mes"], dados["Classe"], normalize="index") * 100).round(1))
+
 
 # 2. Separar entradas e saída
-X = dados[["Temperatura", "UR"]]
+X = dados[["Mes", "Hora"]]
 y = dados["Classe"]
 
 # 3. Dividir dados: 70% treino, 15% validação, 15% teste
@@ -65,8 +79,15 @@ print("Acurácia validação:", accuracy_score(y_valid, prev_valid))
 prev_teste = rede.predict(X_teste)
 print("Acurácia teste:", accuracy_score(y_teste, prev_teste))
 
-print("\nMatriz de confusão:")
-print(confusion_matrix(y_teste, prev_teste))
+matriz = confusion_matrix(y_teste, prev_teste, labels=[0, 1, 2])
 
-print("\nRelatório de classificação:")
-print(classification_report(y_teste, prev_teste))
+print("\n" + "="*50)
+print("MATRIZ DE CONFUSÃO")
+print("="*50)
+print(matriz)
+
+print("\n" + "="*50)
+print("RELATÓRIO DE CLASSIFICAÇÃO")
+print("="*50)
+print(classification_report(y_teste, prev_teste, labels=[0, 1, 2], zero_division=0))
+

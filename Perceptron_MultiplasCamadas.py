@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 from sklearn.model_selection import train_test_split
@@ -8,9 +9,9 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 # 1. Ler a aba da planilha
-dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino4")
+dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino")
 
-dados = dados.dropna(subset=["Mes", "Hora", "UR", "Classe"])
+dados = dados.dropna(subset=["Mes", "Hora", "Temperatura", "UR", "Classe"])
 
 # remove linhas totalmente vazias
 dados = dados.dropna(how="all")
@@ -39,9 +40,54 @@ print(pd.crosstab(
     [dados["Mes"], dados["Hora"]],
     dados["Classe"]
 ))
+print(
+    pd.crosstab(
+        dados["Classe"],
+        pd.cut(
+            dados["Temperatura"],
+            bins=[0,15,20,25,30,50]
+        )
+    )
+)
+
+print(
+    pd.crosstab(
+        dados["Classe"],
+        pd.cut(
+            dados["UR"],
+            bins=[0,40,60,80,100]
+        )
+    )
+)
+
+print("\nEstatísticas descritivas por classe:")
+print(
+    dados.groupby("Classe")[["Temperatura","UR"]]
+    .agg(["mean","std","min","max"])
+)
+print(
+    dados.groupby("Classe")[["Temperatura","UR"]]
+    .describe()
+)
+
+
+
+for classe in [0,1,2]:
+    subset = dados[dados["Classe"] == classe]
+    plt.scatter(
+        subset["Temperatura"],
+        subset["UR"],
+        alpha=0.3,
+        label=f"Classe {classe}"
+    )
+
+plt.xlabel("Temperatura")
+plt.ylabel("UR")
+plt.legend()
+plt.show()
 
 # 2. Separar entradas e saída
-X = dados[["Mes_sen", "Mes_cos", "Hora_sen", "Hora_cos", "UR"]]
+X = dados[["Mes_sen", "Mes_cos", "Hora_sen", "Hora_cos", "Temperatura", "UR"]]
 y = dados["Classe"]
 
 # 3. Dividir dados: 70% treino, 15% validação, 15% teste

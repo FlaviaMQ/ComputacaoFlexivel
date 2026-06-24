@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -6,9 +8,9 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 # 1. Ler a aba da planilha
-dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino6")
+dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino2")
 
-dados = dados.dropna(subset=["UR", "Classe"])
+dados = dados.dropna(subset=["Mes", "Hora", "Classe"])
 
 # remove linhas totalmente vazias
 dados = dados.dropna(how="all")
@@ -19,15 +21,22 @@ dados = dados.dropna(subset=["Classe"])
 # remove linhas com classe inválida
 dados = dados[dados["Classe"].isin([0, 1, 2])]
 
+dados["Mes_sen"] = np.sin(2*np.pi*dados["Mes"]/12)
+dados["Mes_cos"] = np.cos(2*np.pi*dados["Mes"]/12)
+
+dados["Hora_sen"] = np.sin(2*np.pi*dados["Hora"]/24)
+dados["Hora_cos"] = np.cos(2*np.pi*dados["Hora"]/24)
+
 #Análise exploratória: tabela cruzada de Mes e Hora com Classe
+print("\nClasse por mês:")
+print(pd.crosstab(dados["Mes"], dados["Classe"]))
 
-
-print("\nClasse por UR:")
-print(pd.crosstab(dados["UR"], dados["Classe"]))
+print("\nClasse por hora:")
+print(pd.crosstab(dados["Hora"], dados["Classe"]))
 
 
 # 2. Separar entradas e saída
-X = dados[["UR"]]
+X = dados[["Mes_sen", "Mes_cos", "Hora_sen", "Hora_cos"]]
 y = dados["Classe"]
 
 # 3. Dividir dados: 70% treino, 15% validação, 15% teste

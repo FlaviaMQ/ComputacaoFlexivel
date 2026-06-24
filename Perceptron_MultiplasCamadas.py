@@ -6,9 +6,9 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 # 1. Ler a aba da planilha
-dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino5")
+dados = pd.read_excel("Conforto-Termico-anapolis.xlsm", sheet_name="treino6")
 
-dados = dados.dropna(subset=["Temperatura", "Classe"])
+dados = dados.dropna(subset=["UR", "Classe"])
 
 # remove linhas totalmente vazias
 dados = dados.dropna(how="all")
@@ -22,12 +22,12 @@ dados = dados[dados["Classe"].isin([0, 1, 2])]
 #Análise exploratória: tabela cruzada de Mes e Hora com Classe
 
 
-print("\nClasse por Temperatura:")
-print(pd.crosstab(dados["Temperatura"], dados["Classe"]))
+print("\nClasse por UR:")
+print(pd.crosstab(dados["UR"], dados["Classe"]))
 
 
 # 2. Separar entradas e saída
-X = dados[["Temperatura"]]
+X = dados[["UR"]]
 y = dados["Classe"]
 
 # 3. Dividir dados: 70% treino, 15% validação, 15% teste
